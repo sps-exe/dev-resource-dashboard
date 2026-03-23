@@ -168,6 +168,7 @@ function renderTrending() {
                 <span class="podium-stars">★ ${formatNumber(repo.stars)}</span>
                 <span class="podium-lang">${escapeHtml(repo.language)}</span>
                 <div class="podium-actions">
+                    <button class="icon-btn copy-btn" data-action="copy-url" data-url="${safeUrl(repo.html_url)}" title="Copy URL">📋</button>
                     <button class="icon-btn fav-btn ${isFavorite(repo.full_name) ? 'active' : ''}"
                         data-action="toggle-fav" data-repo="${escapeAttr(repo.full_name)}" title="Save to favorites">
                         ${isFavorite(repo.full_name) ? '♥' : '♡'}
@@ -307,6 +308,7 @@ function buildRepoCard(repo) {
             <div class="repo-card-footer">
                 <span class="repo-stars">★ ${formatNumber(repo.stars)}</span>
                 <div class="repo-actions">
+                    <button class="icon-btn copy-btn" data-action="copy-url" data-url="${safeUrl(repo.html_url)}" title="Copy URL">📋</button>
                     <button class="icon-btn fav-btn ${favActive ? 'active' : ''}"
                         data-action="toggle-fav" data-repo="${escapeAttr(repo.full_name)}" title="Save to favorites">
                         ${favActive ? '♥' : '♡'}
@@ -349,21 +351,21 @@ function openModal(fullName) {
         </div>
         <h2 class="modal-title">${escapeHtml(repo.full_name)}</h2>
         <p class="modal-desc">${escapeHtml(repo.description)}</p>
-        <div class="modal-stats">
-            <div class="modal-stat">
-                <span class="modal-stat-val">★ ${formatNumber(repo.stars)}</span>
-                <span class="modal-stat-label">Stars</span>
+        <div class="modal-meta-grid">
+            <div class="modal-meta-item">
+                <span class="modal-meta-val">★ ${formatNumber(repo.stars)}</span>
+                <span class="modal-meta-label">Stars</span>
             </div>
-            <div class="modal-stat">
-                <span class="modal-stat-val">⑂ ${formatNumber(repo.forks)}</span>
-                <span class="modal-stat-label">Forks</span>
+            <div class="modal-meta-item">
+                <span class="modal-meta-val">⑂ ${formatNumber(repo.forks)}</span>
+                <span class="modal-meta-label">Forks</span>
             </div>
-            <div class="modal-stat">
-                <span class="modal-stat-val">${formatNumber(repo.velocity)}</span>
-                <span class="modal-stat-label">Stars / Day</span>
+            <div class="modal-meta-item">
+                <span class="modal-meta-val">⚡ ${formatNumber(repo.velocity)}</span>
+                <span class="modal-meta-label">Stars / Day</span>
             </div>
         </div>
-        <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1rem;">Last pushed: ${lastPushed}</p>
+        <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1rem;text-align:center;">Last pushed: ${lastPushed}</p>
         <div class="modal-actions">
             <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="modal-btn-primary" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;">
                 Open on GitHub ↗
@@ -371,6 +373,9 @@ function openModal(fullName) {
             <button class="modal-btn-secondary ${favActive ? 'active' : ''}"
                 data-action="modal-toggle-fav" data-repo="${escapeAttr(repo.full_name)}">
                 ${favActive ? '♥ Saved' : '♡ Save'}
+            </button>
+            <button class="modal-btn-secondary" data-action="copy-url" data-url="${safeUrl(repo.html_url)}" title="Copy URL">
+                📋 Copy URL
             </button>
         </div>
     `;
@@ -797,6 +802,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (card) {
             const repo = card.dataset.repo;
             if (repo) openModal(repo);
+        }
+
+        // ── Copy URL ──
+        const copyBtn = e.target.closest("[data-action='copy-url']");
+        if (copyBtn) {
+            e.stopPropagation();
+            const url = copyBtn.dataset.url;
+            if (url) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("Copied to clipboard!", "success");
+                }).catch(() => {
+                    showToast("Failed to copy", "error");
+                });
+            }
         }
     });
 });

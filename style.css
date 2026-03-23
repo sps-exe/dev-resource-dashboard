@@ -1,10 +1,4 @@
-/* =========================================================================
-   DevPulse — Design System
-   Aesthetic: "Industrial Precision" — dark-first, high-contrast, purposeful
-   Fonts: Space Grotesk (display) + JetBrains Mono (data)
-   ========================================================================= */
 
-/* ––– TOKENS ––– */
 :root {
     /* Dark Theme (default) */
     --bg: #09090f;
@@ -895,7 +889,7 @@ img { display: block; max-width: 100%; }
     position: fixed;
     inset: 0;
     z-index: 2000;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.82);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -903,120 +897,158 @@ img { display: block; max-width: 100%; }
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--t-med);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
 }
 .modal-overlay.open {
     opacity: 1;
     pointer-events: auto;
 }
 .modal-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    max-width: 560px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    max-width: 540px;
     width: 100%;
-    max-height: 85vh;
+    max-height: 88vh;
     overflow-y: auto;
     padding: 2rem;
     position: relative;
-    transform: translateY(24px) scale(0.97);
-    transition: transform var(--t-med);
-    box-shadow: var(--shadow);
+    transform: translateY(28px) scale(0.96);
+    transition: transform var(--t-med), opacity var(--t-med);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px var(--border-accent), inset 0 1px 0 rgba(255,255,255,0.05);
+    scrollbar-width: none;
 }
+.modal-card::-webkit-scrollbar { display: none; }
 .modal-overlay.open .modal-card {
     transform: translateY(0) scale(1);
 }
 .modal-close {
     position: absolute;
-    top: 1rem; right: 1rem;
-    width: 32px; height: 32px;
-    border-radius: 7px;
-    font-size: 1.1rem;
-    color: var(--text-2);
+    top: 1.1rem; right: 1.1rem;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    color: var(--text-3);
     background: var(--bg-3);
+    border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     transition: all var(--t-fast);
+    line-height: 1;
 }
-.modal-close:hover { color: var(--text); background: var(--bg-2); }
+.modal-close:hover { color: var(--text); background: var(--surface-2); border-color: var(--border-accent); }
 
 /* Modal content */
 .modal-header-top {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    gap: 0.6rem;
+    margin-bottom: 0.875rem;
     flex-wrap: wrap;
+    padding-right: 2.5rem;
 }
 .modal-title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--text);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
 }
 .modal-desc {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text-2);
-    line-height: 1.65;
+    line-height: 1.6;
     margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
 }
 .modal-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
 }
 .modal-stat {
-    background: var(--bg-2);
-    padding: 0.875rem 1rem;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.875rem 0.75rem;
     text-align: center;
+    transition: border-color var(--t-fast), background var(--t-fast);
 }
+.modal-stat:hover {
+    border-color: var(--border-accent);
+    background: var(--surface-2);
+}
+.modal-stat:first-child .modal-stat-val { color: var(--yellow); }
+.modal-stat:last-child .modal-stat-val { color: var(--green); }
 .modal-stat-val {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
     color: var(--text);
     display: block;
+    letter-spacing: -0.02em;
 }
 .modal-stat-label {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     display: block;
-    margin-top: 0.2rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+.modal-meta {
+    font-size: 0.82rem;
+    color: var(--text-3);
+    margin-bottom: 1.25rem;
 }
 .modal-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.625rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
     flex-wrap: wrap;
 }
 .modal-btn-primary {
     flex: 1;
-    height: 40px;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 0.875rem;
     font-weight: 600;
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: #fff;
     border: none;
     transition: all var(--t-fast);
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 12px var(--accent-glow);
 }
-.modal-btn-primary:hover { background: var(--accent-2); transform: translateY(-1px); }
+.modal-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+    filter: brightness(1.08);
+}
 .modal-btn-secondary {
-    height: 40px;
+    height: 42px;
     padding: 0 1.25rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
     font-weight: 600;
-    background: var(--surface-2);
-    color: var(--text);
+    background: var(--bg-3);
+    color: var(--text-2);
     border: 1px solid var(--border);
     transition: all var(--t-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
-.modal-btn-secondary:hover { border-color: var(--accent); color: var(--accent-2); }
+.modal-btn-secondary:hover {
+    border-color: var(--border-accent);
+    color: var(--text);
+    background: var(--surface-2);
+}
 .modal-btn-secondary.active {
     color: var(--red);
     border-color: rgba(239,68,68,0.35);
