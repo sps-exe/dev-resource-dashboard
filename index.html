@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Resource Intelligence Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Developer Resource Dashboard</h1>
+            <p>Discover, explore, and manage useful public APIs and developer tools.</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- Control Panel: Search and Filter -->
+        <section class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search APIs by name or description...">
+            </div>
+            <div class="filter-box">
+                <select id="categoryFilter">
+                    <option value="All">All Categories</option>
+                    <!-- Categories will be dynamically injected here by JS -->
+                </select>
+            </div>
+        </section>
+
+        <!-- Dynamic Grid for APIs -->
+        <section class="api-grid-container">
+            <div id="api-grid" class="api-grid">
+                <!-- API Cards will be dynamically injected here by JS -->
+            </div>
+            
+            <!-- Empty State Message -->
+            <div id="no-results" class="no-results hidden">
+                <h2>No APIs found</h2>
+                <p>Try adjusting your search or category filter.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built with Vanilla HTML, CSS, & JS.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

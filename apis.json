@@ -1,0 +1,98 @@
+[
+    {
+        "id": "1",
+        "name": "Cat Facts",
+        "description": "Daily cat facts because everyone loves cats.",
+        "category": "Animals",
+        "url": "https://alexwohlbruck.github.io/cat-facts/",
+        "authType": "None"
+    },
+    {
+        "id": "2",
+        "name": "Coindesk",
+        "description": "CoinDesk's Bitcoin Price Index (BPI) in multiple currencies.",
+        "category": "Finance",
+        "url": "https://github.com/CoinDesk/bpi-api",
+        "authType": "None"
+    },
+    {
+        "id": "3",
+        "name": "Bored API",
+        "description": "Find activities to do when you're bored.",
+        "category": "Entertainment",
+        "url": "https://www.boredapi.com/",
+        "authType": "None"
+    },
+    {
+        "id": "4",
+        "name": "OpenWeather",
+        "description": "Current weather data, forecasts, and historical info.",
+        "category": "Weather",
+        "url": "https://openweathermap.org/api",
+        "authType": "API Key"
+    },
+    {
+        "id": "5",
+        "name": "GitHub",
+        "description": "Interact with GitHub repositories, users, and issues.",
+        "category": "Development",
+        "url": "https://docs.github.com/en/rest",
+        "authType": "OAuth"
+    },
+    {
+        "id": "6",
+        "name": "PokeAPI",
+        "description": "All the Pokémon data you'll ever need in one place.",
+        "category": "Gaming",
+        "url": "https://pokeapi.co/",
+        "authType": "None"
+    },
+    {
+        "id": "7",
+        "name": "REST Countries",
+        "description": "Get information about countries via a RESTful API.",
+        "category": "Geography",
+        "url": "https://restcountries.com/",
+        "authType": "None"
+    },
+    {
+        "id": "8",
+        "name": "ExchangeRate-API",
+        "description": "Free and unlimited currency conversion API.",
+        "category": "Finance",
+        "url": "https://www.exchangerate-api.com/",
+        "authType": "API Key"
+    },
+    {
+        "id": "9",
+        "name": "Hugging Face",
+        "description": "Access thousands of machine learning models for natural language and more.",
+        "category": "AI/ML",
+        "url": "https://huggingface.co/docs/api-inference/index",
+        "authType": "API Key"
+    },
+    {
+        "id": "10",
+        "name": "SpaceX API",
+        "description": "Open source REST API for rocket, core, capsule, pad, and launch data.",
+        "category": "Science",
+        "url": "https://github.com/r-spacex/SpaceX-API",
+        "authType": "None"
+    },
+    {
+        "id": "11",
+        "name": "Reqres",
+        "description": "A hosted REST-API ready to respond to your AJAX requests (Mock testing).",
+        "category": "Development",
+        "url": "https://reqres.in/",
+        "authType": "None"
+    },
+    {
+        "id": "12",
+        "name": "Dog API",
+        "description": "The internet's biggest collection of open source dog pictures.",
+        "category": "Animals",
+        "url": "https://dog.ceo/dog-api/",
+        "authType": "None"
+    }
+]
