@@ -1,78 +1,253 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending Public APIs</title>
-    <!-- We use local style.css per requirements -->
+    <title>DevPulse — Trending Dev Resources</title>
+    <meta name="description" content="Discover trending GitHub repositories in real-time. Explore by category, track star velocity, and save your favorites.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="light-mode">
-    <header>
-        <div class="header-container">
-            <div class="header-content">
-                <div>
-                    <h1>Trending Public APIs</h1>
-                    <p>Discover real-time trending API repositories from GitHub.</p>
-                </div>
-                <!-- Dark Mode Toggle (Milestone 3) -->
-                <button id="themeToggle" class="btn btn-secondary">
-                    <span id="themeIcon">🌙</span> Dark Mode
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo" id="logoBtn">
+                <span class="logo-mark">◈</span>
+                <span class="logo-text">Dev<strong>Pulse</strong></span>
+            </a>
+
+            <div class="nav-search-wrap">
+                <span class="search-icon">⌕</span>
+                <input type="text" id="globalSearch" class="nav-search" placeholder="Search repos, categories..." aria-label="Global Search">
+                <span id="searchLoader" class="search-loader hidden"></span>
+            </div>
+
+            <div class="nav-actions">
+                <button id="themeToggle" class="btn-ghost" title="Toggle theme" aria-label="Toggle theme">
+                    <span id="themeIcon">☽</span>
+                </button>
+                <button class="btn-ghost" id="favNavBtn" title="Your Favorites">
+                    <span>♥</span>
+                    <span id="favBadge" class="badge-pill">0</span>
                 </button>
             </div>
         </div>
-    </header>
 
-    <main>
-        <!-- Control Panel: Search, Filter, Sort (Milestone 3) -->
-        <section class="controls">
-            <div class="search-box">
-                <!-- Search feature with Debouncing -->
-                <input type="text" id="searchInput" placeholder="Search by name or description (Debounced)..." aria-label="Search APIs">
-                <span id="loadingIndicator" class="loading-indicator hidden">⏳</span>
+        <!-- Tab Navigation -->
+        <div class="nav-tabs-wrap">
+            <div class="nav-tabs container">
+                <button class="nav-tab active" data-tab="trending" id="tab-trending">
+                    <span class="tab-icon">🔥</span> Trending
+                </button>
+                <button class="nav-tab" data-tab="categories" id="tab-categories">
+                    <span class="tab-icon">◫</span> Categories
+                </button>
+                <button class="nav-tab" data-tab="all" id="tab-all">
+                    <span class="tab-icon">◈</span> All Repos
+                </button>
+                <button class="nav-tab" data-tab="favorites" id="tab-favorites">
+                    <span class="tab-icon">♥</span> Favorites
+                </button>
             </div>
-            
-            <div class="filter-box">
-                <!-- Filtering feature -->
-                <select id="languageFilter" aria-label="Filter by Language">
-                    <option value="All">All Languages</option>
-                    <!-- Languages will be dynamically injected here by JS -->
-                </select>
+        </div>
+    </nav>
 
-                <!-- Sorting Dropdown -->
-                <select id="sortSelect" aria-label="Sort Repositories">
-                    <option value="stars-desc">Sort by: Stars (High-Low)</option>
-                    <option value="stars-asc">Sort by: Stars (Low-High)</option>
-                    <option value="name-asc">Sort by: Name (A-Z)</option>
-                    <option value="name-desc">Sort by: Name (Z-A)</option>
-                </select>
+    <!-- ===== HERO (Trending Tab) ===== -->
+    <div class="tab-content active" id="view-trending">
+
+        <!-- Hero Banner -->
+        <section class="hero">
+            <div class="hero-bg-grid"></div>
+            <div class="container hero-inner">
+                <div class="hero-label">
+                    <span class="pulse-dot"></span> Live GitHub Data
+                </div>
+                <h1 class="hero-title">Trending <em>Dev</em> Repos</h1>
+                <p class="hero-sub">The fastest-rising open source repositories, ranked by real-time star velocity</p>
+
+                <div class="hero-stats" id="heroStatsBar">
+                    <div class="hstat">
+                        <span class="hstat-val" id="hstatTotal">--</span>
+                        <span class="hstat-label">Repos Tracked</span>
+                    </div>
+                    <div class="hstat-divider"></div>
+                    <div class="hstat">
+                        <span class="hstat-val" id="hstatTopLang">--</span>
+                        <span class="hstat-label">Top Language</span>
+                    </div>
+                    <div class="hstat-divider"></div>
+                    <div class="hstat">
+                        <span class="hstat-val" id="hstatFavs">0</span>
+                        <span class="hstat-label">Saved Favorites</span>
+                    </div>
+                    <div class="hstat-divider"></div>
+                    <div class="hstat">
+                        <span class="hstat-val" id="hstatCategories">8</span>
+                        <span class="hstat-label">Categories</span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Dynamic Grid Container -->
-        <section class="api-grid-container">
-            <div id="api-grid" class="api-grid">
-                <!-- Javascript injects cards here -->
-                <div class="loading-state">Fetching real-time data from GitHub API...</div>
+        <!-- Trending Leaderboard -->
+        <section class="container section-gap">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">⚡ Rising Fast</h2>
+                    <p class="section-sub">Ranked by stars gained per day — updated on each load</p>
+                </div>
+                <div class="sort-controls">
+                    <select id="trendingSort" class="select-sm">
+                        <option value="velocity">By Velocity</option>
+                        <option value="stars">By Total Stars</option>
+                        <option value="recent">Recently Updated</option>
+                    </select>
+                </div>
             </div>
-            
-            <!-- Empty State Message -->
-            <div id="no-results" class="no-results hidden">
-                <h2>No repositories found.</h2>
-                <p>Try adjusting your search query, filters, or checking your connection.</p>
+
+            <!-- Podium (Top 3) -->
+            <div class="podium-grid" id="podiumGrid">
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+            </div>
+
+            <!-- Rest of trending (4-30) -->
+            <div class="trending-list" id="trendingList">
+                <!-- JS populates this -->
             </div>
         </section>
-    </main>
+    </div>
+
+    <!-- ===== CATEGORIES TAB ===== -->
+    <div class="tab-content" id="view-categories">
+        <section class="container section-gap-top">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">◫ Browse by Category</h2>
+                    <p class="section-sub">Discover curated repos across every domain</p>
+                </div>
+            </div>
+
+            <!-- Category Chips -->
+            <div class="category-chips" id="categoryChips">
+                <button class="chip active" data-category="ai">🤖 AI & ML</button>
+                <button class="chip" data-category="gaming">🎮 Gaming</button>
+                <button class="chip" data-category="design">🎨 Design</button>
+                <button class="chip" data-category="data">📊 Data</button>
+                <button class="chip" data-category="security">🔐 Security</button>
+                <button class="chip" data-category="finance">💰 Finance</button>
+                <button class="chip" data-category="maps">🗺️ Maps</button>
+                <button class="chip" data-category="music">🎵 Music</button>
+            </div>
+
+            <!-- Category Repo Grid -->
+            <div id="categoryGrid" class="repo-grid">
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+            </div>
+
+            <div id="catNoResults" class="empty-state hidden">
+                <div class="empty-icon">◈</div>
+                <p>No repositories found for this category.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== ALL REPOS TAB ===== -->
+    <div class="tab-content" id="view-all">
+        <section class="container section-gap-top">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">◈ All Repositories</h2>
+                    <p class="section-sub">The full ranked dataset — search, filter, explore</p>
+                </div>
+                <div class="filter-row">
+                    <select id="langFilter" class="select-sm">
+                        <option value="All">All Languages</option>
+                    </select>
+                    <select id="allSort" class="select-sm">
+                        <option value="stars-desc">Stars ↓</option>
+                        <option value="stars-asc">Stars ↑</option>
+                        <option value="name-asc">Name A→Z</option>
+                        <option value="name-desc">Name Z→A</option>
+                        <option value="velocity">Velocity ↓</option>
+                    </select>
+                    <div class="view-toggles">
+                        <button class="vtoggle active" id="gridBtn" title="Grid View">⊞</button>
+                        <button class="vtoggle" id="listBtn" title="List View">≡</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="allRepoGrid" class="repo-grid">
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+            </div>
+            <div id="allNoResults" class="empty-state hidden">
+                <div class="empty-icon">⌕</div>
+                <p>No results match your filters.</p>
+                <button onclick="clearAllFilters()" class="btn-outline">Clear Filters</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== FAVORITES TAB ===== -->
+    <div class="tab-content" id="view-favorites">
+        <section class="container section-gap-top">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">♥ Your Favorites</h2>
+                    <p class="section-sub">Repositories you've saved for later reference</p>
+                </div>
+                <button class="btn-outline danger" id="clearFavsBtn" onclick="clearAllFavorites()">Clear All</button>
+            </div>
+
+            <div id="favGrid" class="repo-grid">
+                <!-- JS populates -->
+            </div>
+
+            <div id="favEmptyState" class="empty-state">
+                <div class="empty-icon">♡</div>
+                <h3>No favorites yet</h3>
+                <p>Click the ♥ on any card to save a repo here</p>
+                <button onclick="switchTab('trending')" class="btn-outline">Explore Trending</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== MODAL (Repo Detail) ===== -->
+    <div id="repoModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-card">
+            <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- ===== FIXED UI ===== -->
+    <button id="backToTop" class="fab-btn hidden" aria-label="Back to top">↑</button>
+    <div id="toastContainer" class="toast-container"></div>
 
     <footer class="main-footer">
-        <div class="footer-content">
-            <p>&copy; 2026 Developer Resource Intelligence Dashboard.</p>
-            <p>Milestone 2 & 3 Completed: Live GitHub API, Sorting, Dark Mode, Favorites & Debouncing.</p>
+        <div class="container footer-inner">
+            <span class="logo-text">◈ Dev<strong>Pulse</strong></span>
+            <span>Data sourced from the GitHub API — Refreshed on each load</span>
+            <span>Built with Vanilla JS · No frameworks required</span>
         </div>
     </footer>
 
-    <!-- Core Logic -->
     <script src="app.js"></script>
 </body>
 </html>
