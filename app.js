@@ -159,7 +159,7 @@ function renderTrending() {
     const rankClasses = ["rank-1", "rank-2", "rank-3"];
 
     const podiumHTML = podium.map((repo, idx) =>
-        `<div class="podium-card ${rankClasses[idx]}" onclick="openModal('${escapeAttr(repo.full_name)}')">
+        `<div class="podium-card ${rankClasses[idx]}" data-action="open-modal" data-repo="${escapeAttr(repo.full_name)}">
             <span class="podium-rank">${rankSymbols[idx]}</span>
             <div class="podium-velocity">⚡ ${formatNumber(repo.velocity)} stars/day</div>
             <div class="podium-name">${escapeHtml(repo.full_name)}</div>
@@ -169,11 +169,11 @@ function renderTrending() {
                 <span class="podium-lang">${escapeHtml(repo.language)}</span>
                 <div class="podium-actions">
                     <button class="icon-btn fav-btn ${isFavorite(repo.full_name) ? 'active' : ''}"
-                        onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}')" title="Save to favorites">
+                        data-action="toggle-fav" data-repo="${escapeAttr(repo.full_name)}" title="Save to favorites">
                         ${isFavorite(repo.full_name) ? '♥' : '♡'}
                     </button>
                     <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer"
-                        class="btn-view-repo" onclick="event.stopPropagation()">GitHub ↗</a>
+                        class="btn-view-repo" data-action="external-link">GitHub ↗</a>
                 </div>
             </div>
         </div>`
@@ -183,7 +183,7 @@ function renderTrending() {
 
     // Render ranked list (4+)
     const listHTML = list.map((repo, idx) =>
-        `<div class="trend-row" onclick="openModal('${escapeAttr(repo.full_name)}')">
+        `<div class="trend-row" data-action="open-modal" data-repo="${escapeAttr(repo.full_name)}">
             <span class="trend-rank">${idx + 4}</span>
             <div class="trend-info">
                 <div class="trend-name">${escapeHtml(repo.full_name)}</div>
@@ -192,7 +192,7 @@ function renderTrending() {
             <span class="trend-velocity">⚡ ${formatNumber(repo.velocity)}/day</span>
             <span class="trend-stars">★ ${formatNumber(repo.stars)}</span>
             <button class="trend-fav-btn ${isFavorite(repo.full_name) ? 'active' : ''}"
-                onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}')" title="Favorite">
+                data-action="toggle-fav" data-repo="${escapeAttr(repo.full_name)}" title="Favorite">
                 ${isFavorite(repo.full_name) ? '♥' : '♡'}
             </button>
         </div>`
@@ -297,7 +297,7 @@ function renderFavorites() {
 function buildRepoCard(repo) {
     const favActive = isFavorite(repo.full_name);
     return `
-        <div class="repo-card" onclick="openModal('${escapeAttr(repo.full_name)}')">
+        <div class="repo-card" data-action="open-modal" data-repo="${escapeAttr(repo.full_name)}">
             <div class="repo-card-top">
                 <span class="repo-card-lang">${escapeHtml(repo.language)}</span>
                 <span class="repo-velocity-badge">⚡ ${formatNumber(repo.velocity)}/day</span>
@@ -308,11 +308,11 @@ function buildRepoCard(repo) {
                 <span class="repo-stars">★ ${formatNumber(repo.stars)}</span>
                 <div class="repo-actions">
                     <button class="icon-btn fav-btn ${favActive ? 'active' : ''}"
-                        onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}')" title="Save to favorites">
+                        data-action="toggle-fav" data-repo="${escapeAttr(repo.full_name)}" title="Save to favorites">
                         ${favActive ? '♥' : '♡'}
                     </button>
                     <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer"
-                        class="btn-view-repo" onclick="event.stopPropagation()">View ↗</a>
+                        class="btn-view-repo" data-action="external-link">View ↗</a>
                 </div>
             </div>
         </div>
@@ -365,11 +365,11 @@ function openModal(fullName) {
         </div>
         <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1rem;">Last pushed: ${lastPushed}</p>
         <div class="modal-actions">
-            <a href="${repo.html_url}" target="_blank" rel="noopener" class="modal-btn-primary" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;">
+            <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="modal-btn-primary" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;">
                 Open on GitHub ↗
             </a>
             <button class="modal-btn-secondary ${favActive ? 'active' : ''}"
-                onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}'); const saved = isFavorite('${escapeAttr(repo.full_name)}'); this.innerHTML = saved ? '♥ Saved' : '♡ Save'; this.classList.toggle('active', saved);">
+                data-action="modal-toggle-fav" data-repo="${escapeAttr(repo.full_name)}">
                 ${favActive ? '♥ Saved' : '♡ Save'}
             </button>
         </div>
@@ -755,5 +755,48 @@ document.addEventListener("DOMContentLoaded", () => {
         document.documentElement.setAttribute("data-theme", next);
         themeIcon.textContent = next === "dark" ? "☽" : "☀";
         localStorage.setItem("devpulse_theme", next);
+    });
+
+    /* ═══════════════════════════════════════════════════════════════════
+     * EVENT DELEGATION — handles all data-action clicks on dynamically
+     * rendered cards (replaces all forbidden inline onclick= handlers)
+     * ═══════════════════════════════════════════════════════════════════ */
+    document.addEventListener("click", (e) => {
+        // ── Toggle favorite (card buttons + modal save button) ──
+        const favBtn = e.target.closest("[data-action='toggle-fav']");
+        if (favBtn) {
+            e.stopPropagation();
+            const repo = favBtn.dataset.repo;
+            if (repo) toggleFavorite(e, repo);
+            return;
+        }
+
+        // ── Modal save button ──
+        const modalFavBtn = e.target.closest("[data-action='modal-toggle-fav']");
+        if (modalFavBtn) {
+            e.stopPropagation();
+            const repo = modalFavBtn.dataset.repo;
+            if (repo) {
+                toggleFavorite(e, repo);
+                const saved = isFavorite(repo);
+                modalFavBtn.innerHTML = saved ? "♥ Saved" : "♡ Save";
+                modalFavBtn.classList.toggle("active", saved);
+            }
+            return;
+        }
+
+        // ── External links — stop propagation so card modal doesn't open ──
+        const extLink = e.target.closest("[data-action='external-link']");
+        if (extLink) {
+            e.stopPropagation();
+            return; // browser handles the <a> href normally
+        }
+
+        // ── Open modal on card/row click ──
+        const card = e.target.closest("[data-action='open-modal']");
+        if (card) {
+            const repo = card.dataset.repo;
+            if (repo) openModal(repo);
+        }
     });
 });
