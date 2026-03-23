@@ -76,6 +76,7 @@ async function fetchTrending() {
         STATE.trending = getFallbackData();
         renderTrending();
         updateHeroStats();
+        populateLangFilter();
     } finally {
         showSearchLoader(false);
     }
@@ -382,7 +383,7 @@ function openModal(fullName) {
                 Open on GitHub ↗
             </a>
             <button class="modal-btn-secondary ${favActive ? 'active' : ''}"
-                onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}'); this.innerHTML = isFavorite('${escapeAttr(repo.full_name)}') ? '♥ Saved' : '♡ Save'">
+                onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}'); const saved = isFavorite('${escapeAttr(repo.full_name)}'); this.innerHTML = saved ? '♥ Saved' : '♡ Save'; this.classList.toggle('active', saved);">
                 ${favActive ? '♥ Saved' : '♡ Save'}
             </button>
         </div>
@@ -547,15 +548,6 @@ function switchTab(tabId) {
 function updateHeroStats() {
     const total = STATE.trending.length;
     document.getElementById("hstatTotal").textContent = total + "+";
-
-    // Use Array.reduce() HOF to find the most common language
-    const langCounts = STATE.trending.reduce((acc, repo) => {
-        acc[repo.language] = (acc[repo.language] || 0) + 1;
-        return acc;
-    }, {});
-    const topLang = Object.entries(langCounts)
-        .sort((a, b) => b[1] - a[1])[0]?.[0] || "--";
-    document.getElementById("hstatTopLang").textContent = topLang;
 }
 
 // =========================================================================
@@ -672,7 +664,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ––– Trending sort ––– */
     document.getElementById("trendingSort").addEventListener("change", (e) => {
-        STATE.trendingSort = e.target.value;
+        // Map select value to sort key used in sortRepos()
+        const val = e.target.value;
+        STATE.trendingSort = val === "stars" ? "stars-desc" : val;
         renderTrending();
     });
 
