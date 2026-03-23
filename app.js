@@ -351,18 +351,18 @@ function openModal(fullName) {
         </div>
         <h2 class="modal-title">${escapeHtml(repo.full_name)}</h2>
         <p class="modal-desc">${escapeHtml(repo.description)}</p>
-        <div class="modal-meta-grid">
-            <div class="modal-meta-item">
-                <span class="modal-meta-val">★ ${formatNumber(repo.stars)}</span>
-                <span class="modal-meta-label">Stars</span>
+        <div class="modal-stats">
+            <div class="modal-stat">
+                <span class="modal-stat-val">★ ${formatNumber(repo.stars)}</span>
+                <span class="modal-stat-label">Stars</span>
             </div>
-            <div class="modal-meta-item">
-                <span class="modal-meta-val">⑂ ${formatNumber(repo.forks)}</span>
-                <span class="modal-meta-label">Forks</span>
+            <div class="modal-stat">
+                <span class="modal-stat-val">⑂ ${formatNumber(repo.forks)}</span>
+                <span class="modal-stat-label">Forks</span>
             </div>
-            <div class="modal-meta-item">
-                <span class="modal-meta-val">⚡ ${formatNumber(repo.velocity)}</span>
-                <span class="modal-meta-label">Stars / Day</span>
+            <div class="modal-stat">
+                <span class="modal-stat-val">⚡ ${formatNumber(repo.velocity)}</span>
+                <span class="modal-stat-label">Stars/Day</span>
             </div>
         </div>
         <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1rem;text-align:center;">Last pushed: ${lastPushed}</p>
