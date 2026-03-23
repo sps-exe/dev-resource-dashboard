@@ -1112,23 +1112,137 @@ img { display: block; max-width: 100%; }
 }
 
 /* =========================================================================
-   RESPONSIVE
+   RESPONSIVE — Mobile-first breakpoints
    ========================================================================= */
-@media (max-width: 640px) {
-    .hero { padding: 2.5rem 0 2rem; }
-    .hero-title { font-size: 1.8rem; }
-    .hero-stats { width: 100%; }
-    .hstat { padding: 0.75rem 1rem; }
-    .hstat-val { font-size: 1.25rem; }
-    .filter-row { gap: 0.5rem; }
-    .modal-card { padding: 1.5rem; }
-    .modal-stats { grid-template-columns: repeat(2, 1fr); }
-    .footer-inner { flex-direction: column; text-align: center; }
-    .hstat-divider { display: none; }
-    .podium-grid { grid-template-columns: 1fr; }
-    .nav-inner { gap: 0.75rem; }
-}
 
+/* ––– Tablet (≤ 900px) ––– */
 @media (max-width: 900px) {
     .repo-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .modal-card { max-width: 100%; margin: 0 0.5rem; }
+    .podium-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ––– Small Tablet / Large Phone (≤ 768px) ––– */
+@media (max-width: 768px) {
+    /* Navbar: shrink search, hide label text */
+    .nav-inner { gap: 0.5rem; padding: 0 1rem; }
+    .logo-text { display: none; }           /* hide "DevPulse" text, keep icon */
+    .nav-search-wrap { max-width: none; }   /* search takes remaining space */
+
+    /* Tabs: full-width scrollable row */
+    .nav-tabs { gap: 0.1rem; padding: 0 0.75rem; }
+    .nav-tab { padding: 0 0.6rem; font-size: 0.8rem; }
+    .tab-icon { font-size: 1rem; }
+
+    /* Body offset for slightly smaller nav */
+    body { padding-top: calc(var(--nav-h) + var(--tabs-h)); }
+
+    /* Hero */
+    .hero { padding: 2.5rem 0 2rem; }
+    .hero-title { font-size: clamp(1.75rem, 6vw, 2.4rem); }
+    .hero-sub { font-size: 0.95rem; margin-bottom: 1.75rem; }
+    .hero-stats { width: 100%; }
+    .hstat { padding: 0.75rem 1rem; flex: 1; }
+    .hstat-val { font-size: 1.3rem; }
+
+    /* Sections */
+    .section-gap { padding: 2rem 0 2.5rem; }
+    .section-gap-top { padding-top: 1.75rem; padding-bottom: 2.5rem; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+
+    /* Podium → single column */
+    .podium-grid { grid-template-columns: 1fr; }
+
+    /* Repo grid → 1 or 2 cols */
+    .repo-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+    /* Disable list mode on mobile (force grid) */
+    .repo-grid.list-mode { grid-template-columns: 1fr; }
+    .repo-grid.list-mode .repo-card { flex-direction: column; align-items: flex-start; }
+    .repo-grid.list-mode .repo-card-desc { display: -webkit-box; }
+    .repo-grid.list-mode .repo-card-footer { border-top: 1px solid var(--border); padding-top: 0.875rem; }
+
+    /* Controls */
+    .filter-row { flex-wrap: wrap; gap: 0.5rem; }
+    .view-toggles { display: none; }   /* hide grid/list toggle on mobile */
+
+    /* Modal → slide up from bottom */
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal-card {
+        max-width: 100%;
+        width: 100%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: var(--radius-lg);
+        border-top-right-radius: var(--radius-lg);
+        max-height: 90vh;
+        transform: translateY(100%);
+    }
+    .modal-overlay.open .modal-card { transform: translateY(0); }
+    .modal-stats { grid-template-columns: repeat(2, 1fr); }
+
+    /* Toast → full-width bottom */
+    .toast-container { bottom: 16px; right: 16px; left: 16px; }
+    .toast { max-width: 100%; }
+
+    /* Footer */
+    .footer-inner { flex-direction: column; text-align: center; }
+}
+
+/* ––– Mobile (≤ 640px) ––– */
+@media (max-width: 640px) {
+    /* Navbar */
+    .nav-inner { padding: 0 0.75rem; }
+    .btn-ghost span:last-child { display: none; }   /* hide badge label text if any */
+
+    /* Hero */
+    .hero { padding: 2rem 0 1.5rem; }
+    .hero-title { font-size: 1.75rem; }
+    .hero-sub { display: none; }    /* hide subtitle to save vertical space */
+    .hero-stats { border-radius: var(--radius); }
+    .hstat { padding: 0.65rem 0.75rem; }
+    .hstat-val { font-size: 1.15rem; }
+    .hstat-divider { display: none; }
+
+    /* Repo grid → 1 column */
+    .repo-grid { grid-template-columns: 1fr; }
+
+    /* Trend row simplify: hide extra cols */
+    .trend-row { grid-template-columns: 36px 1fr auto; gap: 0.5rem; padding: 0.75rem 1rem; }
+    .trend-velocity { display: none; }
+    .trend-stars { display: none; }
+
+    /* Podium cards tighter */
+    .podium-card { padding: 1rem; }
+    .podium-name { font-size: 1rem; }
+
+    /* Controls */
+    .sort-controls { width: 100%; }
+    .select-sm { width: 100%; }
+
+    /* Modal */
+    .modal-card { padding: 1.25rem; }
+    .modal-title { font-size: 1.15rem; }
+    .modal-stats { grid-template-columns: repeat(2, 1fr); }
+    .modal-actions { flex-direction: column; }
+    .modal-btn-secondary { width: 100%; text-align: center; }
+
+    /* Section headers */
+    .section-title { font-size: 1.15rem; }
+
+    /* Empty states */
+    .empty-state { padding: 2.5rem 1rem; }
+    .empty-icon { font-size: 2.25rem; }
+
+    /* FAB + toast don't overlap */
+    .toast-container { bottom: 80px; }
+}
+
+/* ––– Very small phones (≤ 400px) ––– */
+@media (max-width: 400px) {
+    .nav-search { font-size: 0.8rem; }
+    .hero-title { font-size: 1.5rem; }
+    .hero-stats { flex-direction: column; }
+    .hstat-divider { display: block; width: auto; height: 1px; margin: 0; }
+    .modal-stat-val { font-size: 1rem; }
 }
