@@ -1,18 +1,4 @@
-/**
- * DEVPULSE — Developer Resource Intelligence Dashboard
- * =====================================================
- * Architecture: Vanilla JS MVC
- * - Model: GitHub REST API + localStorage favorites
- * - View: DOM rendering functions
- * - Controller: Event listeners + state management
- *
- * Key HOFs used: .map(), .filter(), .sort(), .reduce(), .find()
- * Easy to explain: each function does exactly ONE clear job.
- */
 
-// =========================================================================
-// 1. APPLICATION STATE — single source of truth
-// =========================================================================
 const STATE = {
     trending: [],       // Top 30 trending repos
     categories: {},     // { ai: [...], gaming: [...], ... } cached per category
@@ -51,11 +37,7 @@ const FAV_KEY = "devpulse_favs_v2";
 // 3. DATA LAYER — fetching from GitHub API
 // =========================================================================
 
-/**
- * fetchTrending:
- * Gets the top 30 repos from GitHub sorted by stars.
- * We then calculate "velocity" (stars per day since creation).
- */
+
 async function fetchTrending() {
     try {
         showSearchLoader(true);
@@ -101,7 +83,12 @@ async function fetchCategory(category) {
 
     try {
         const url = `${GITHUB_API}/search/repositories?q=${query}&sort=stars&order=desc&per_page=18`;
-        const response = await fetch(url);
+        const response = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+        if (checkRateLimit(response)) {
+            STATE.isFetching[category] = false;
+            showCategoryLoader(false);
+            return;
+        }
         if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
         const data = await response.json();
 
@@ -132,17 +119,20 @@ function transformRepo(repo) {
     // stars per day — this is our "velocity" metric
     const velocity = Math.round(repo.stargazers_count / daysSinceCreation);
 
+    // Security: validate full_name is a safe github slug (owner/repo format, no special chars)
+    const safeFullName = /^[\w.-]+\/[\w.-]+$/.test(repo.full_name) ? repo.full_name : "unknown/unknown";
+
     return {
         id: repo.id,
-        full_name: repo.full_name,
+        full_name: safeFullName,
         name: repo.name,
         description: repo.description || "No description provided.",
-        html_url: repo.html_url,
+        html_url: safeUrl(repo.html_url),   // Security: validate URL before storing
         stars: repo.stargazers_count,
         forks: repo.forks_count,
         watchers: repo.watchers_count,
         language: repo.language || "Unknown",
-        topics: repo.topics || [],
+        topics: Array.isArray(repo.topics) ? repo.topics.filter(t => /^[\w-]+$/.test(t)) : [],
         pushed_at: repo.pushed_at,
         created_at: repo.created_at,
         velocity: velocity,  // ⚡ Stars per day
@@ -154,11 +144,7 @@ function transformRepo(repo) {
 // 4. RENDERING — VIEW FUNCTIONS
 // =========================================================================
 
-/**
- * renderTrending:
- * Renders the podium (top 3) and the list (ranks 4-30).
- * Uses Array.sort() and Array.filter() HOFs.
- */
+
 function renderTrending() {
     let repos = [...STATE.trending];
 
@@ -186,7 +172,7 @@ function renderTrending() {
                         onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}')" title="Save to favorites">
                         ${isFavorite(repo.full_name) ? '♥' : '♡'}
                     </button>
-                    <a href="${repo.html_url}" target="_blank" rel="noopener"
+                    <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer"
                         class="btn-view-repo" onclick="event.stopPropagation()">GitHub ↗</a>
                 </div>
             </div>
@@ -325,7 +311,7 @@ function buildRepoCard(repo) {
                         onclick="toggleFavorite(event, '${escapeAttr(repo.full_name)}')" title="Save to favorites">
                         ${favActive ? '♥' : '♡'}
                     </button>
-                    <a href="${repo.html_url}" target="_blank" rel="noopener"
+                    <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer"
                         class="btn-view-repo" onclick="event.stopPropagation()">View ↗</a>
                 </div>
             </div>
@@ -605,6 +591,38 @@ function escapeHtml(str) {
 function escapeAttr(str) {
     if (!str) return "";
     return String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+/**
+ * safeUrl:
+ * Security: validates that a URL is a legitimate https://github.com URL.
+ * Prevents open-redirect or javascript: injection in anchor hrefs.
+ */
+function safeUrl(rawUrl) {
+    try {
+        const url = new URL(rawUrl);
+        // Only allow HTTPS links to github.com
+        if (url.protocol === "https:" && url.hostname === "github.com") {
+            return url.href;
+        }
+    } catch (_) { /* invalid URL */ }
+    return "https://github.com";  // safe fallback
+}
+
+/**
+ * isRateLimited:
+ * Security: checks response headers for GitHub API rate limiting.
+ * Shows a user-friendly error instead of silently failing.
+ */
+function checkRateLimit(response) {
+    const remaining = response.headers.get("X-RateLimit-Remaining");
+    if (remaining !== null && parseInt(remaining, 10) === 0) {
+        const reset = response.headers.get("X-RateLimit-Reset");
+        const resetTime = reset ? new Date(parseInt(reset, 10) * 1000).toLocaleTimeString() : "soon";
+        showToast(`⚠️ GitHub API rate limit hit. Resets at ${resetTime}.`, "error");
+        return true;
+    }
+    return false;
 }
 
 function clearAllFilters() {

@@ -3,6 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Security meta tags (defence-in-depth alongside server headers) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self';
+                   style-src 'self' https://fonts.googleapis.com;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: https:;
+                   connect-src 'self' https://api.github.com;
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
     <title>DevPulse — Trending Dev Resources</title>
     <meta name="description" content="Discover trending GitHub repositories in real-time. Explore by category, track star velocity, and save your favorites.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
