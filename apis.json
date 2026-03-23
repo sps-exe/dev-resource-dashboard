@@ -9,18 +9,18 @@
     },
     {
         "id": "2",
-        "name": "Coindesk",
-        "description": "CoinDesk's Bitcoin Price Index (BPI) in multiple currencies.",
+        "name": "CoinGecko",
+        "description": "Comprehensive cryptocurrency data such as price, volume, and market cap.",
         "category": "Finance",
-        "url": "https://github.com/CoinDesk/bpi-api",
+        "url": "https://www.coingecko.com/en/api",
         "authType": "None"
     },
     {
         "id": "3",
-        "name": "Bored API",
-        "description": "Find activities to do when you're bored.",
+        "name": "JokeAPI",
+        "description": "A REST API that serves uniformly formatted jokes for developers.",
         "category": "Entertainment",
-        "url": "https://www.boredapi.com/",
+        "url": "https://v2.jokeapi.dev/",
         "authType": "None"
     },
     {
