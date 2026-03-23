@@ -1015,6 +1015,7 @@ img { display: block; max-width: 100%; }
 .modal-btn-primary {
     flex: 1;
     height: 42px;
+    padding: 0 1rem;
     border-radius: 10px;
     font-size: 0.875rem;
     font-weight: 600;
@@ -1024,6 +1025,11 @@ img { display: block; max-width: 100%; }
     transition: all var(--t-fast);
     letter-spacing: 0.01em;
     box-shadow: 0 2px 12px var(--accent-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
 }
 .modal-btn-primary:hover {
     transform: translateY(-1px);

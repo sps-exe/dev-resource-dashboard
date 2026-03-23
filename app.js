@@ -367,7 +367,7 @@ function openModal(fullName) {
         </div>
         <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1rem;text-align:center;">Last pushed: ${lastPushed}</p>
         <div class="modal-actions">
-            <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="modal-btn-primary" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;">
+            <a href="${safeUrl(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="modal-btn-primary">
                 Open on GitHub ↗
             </a>
             <button class="modal-btn-secondary ${favActive ? 'active' : ''}"
