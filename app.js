@@ -1,167 +1,242 @@
 /**
- * DEVELOPER RESOURCE INTELLIGENCE DASHBOARD
- * Core Logic Engine
- * Built with Vanilla JavaScript
+ * TRENDING PUBLIC APIs DASHBOARD
+ * Core Logic Engine (Vanilla JavaScript)
+ * Milestone 2 & 3: Live API integration, HOFs, Debouncing, Local Storage, Dark Mode
  */
 
 // =========================================================================
 // 1. APPLICATION STATE
 // =========================================================================
-// We store the data globally in memory so searching/filtering doesn't 
-// require re-fetching from the server.
-let allAPIs = []; 
+let allRepos = [];
+// LocalStorage (Bonus feature): Loads saved favorites or creates empty array
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-// =========================================================================
-// 2. DOM ELEMENTS
-// =========================================================================
-// Caching our DOM elements prevents the browser from having to search 
-// the HTML tree every time a user types a letter.
-const domElements = {
+// DOM Elements
+const UI = {
     searchBox: document.getElementById('searchInput'),
-    categorySelect: document.getElementById('categoryFilter'),
+    languageSelect: document.getElementById('languageFilter'),
+    sortSelect: document.getElementById('sortSelect'),
     apiGrid: document.getElementById('api-grid'),
-    noResultsMessage: document.getElementById('no-results')
+    noResultsMessage: document.getElementById('no-results'),
+    loadingIndicator: document.getElementById('loadingIndicator'),
+    themeToggle: document.getElementById('themeToggle'),
+    themeIcon: document.getElementById('themeIcon')
 };
 
 // =========================================================================
-// 3. INITIALIZATION
+// 2. INITIALIZATION
 // =========================================================================
-/**
- * Triggers as soon as the HTML has fully loaded.
- * It coordinates the initial data fetch and setup.
- */
 document.addEventListener("DOMContentLoaded", async () => {
-    await fetchAPIData();
-    populateCategoryDropdown();
-    renderCards(allAPIs);
+    initTheme(); // Set dark/light mode from local storage
+    UI.themeToggle.addEventListener('click', toggleTheme);
+
+    await fetchGitHubData();
+    populateLanguageDropdown();
+
+    // Attach Event Listeners
+    // Bonus Feature: Debounced Search Input (Improves performance by rejecting useless keypresses)
+    UI.searchBox.addEventListener('input', debounce(handleFilterChange, 300));
     
-    // Attach Event Listeners for Interaction
-    domElements.searchBox.addEventListener('input', handleFilterChange);
-    domElements.categorySelect.addEventListener('change', handleFilterChange);
+    // Changing dropdowns triggers instant filtering
+    UI.languageSelect.addEventListener('change', handleFilterChange);
+    UI.sortSelect.addEventListener('change', handleFilterChange);
 });
 
 // =========================================================================
-// 4. DATA INGESTION (THE CONTROLLER)
+// 3. API INTEGRATION (Milestone 2)
 // =========================================================================
 /**
- * Fetches the API list. 
- * Using our local apis.json to ensure bulletproof reliability during presentations.
+ * Fetches real-time tech repository data from the public GitHub REST API.
  */
-async function fetchAPIData() {
+async function fetchGitHubData() {
     try {
-        const response = await fetch('./apis.json');
+        UI.loadingIndicator.classList.remove('hidden');
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // milestone 2 requirement: integration of public API (fetch)
+        const response = await fetch('https://api.github.com/search/repositories?q=topic:public-api&sort=stars&order=desc&per_page=30');
         
-        // Save the raw data array into our Application State variable
-        allAPIs = await response.json();
+        if (!response.ok) throw new Error("API request failed");
+        
+        const data = await response.json();
+        
+        // Milestone 3: Using Array HOF (map) to clean and structure the data
+        allRepos = data.items.map(repo => ({
+            id: repo.id.toString(),
+            name: repo.name,
+            description: repo.description || "No description provided.",
+            language: repo.language || "Unknown",
+            stars: repo.stargazers_count,
+            url: repo.html_url
+        }));
+
+        renderCards(allRepos);
     } catch (error) {
-        console.error("Failed to load API data:", error);
-        allAPIs = []; // Fallback to empty array
+        console.error("Error fetching data:", error);
+        UI.apiGrid.innerHTML = `<p style="color:red; text-align:center;">Failed to load data from GitHub. Please try again later.</p>`;
+    } finally {
+        UI.loadingIndicator.classList.add('hidden');
     }
 }
 
 // =========================================================================
-// 5. RENDERING ENGINE (THE VIEW)
+// 4. RENDERING ENGINE
 // =========================================================================
 /**
- * Takes an array of API objects and generates HTML cards.
- * @param {Array} apiList - The list of APIs to display
+ * Maps the array array to HTML templates and injects them. 
  */
-function renderCards(apiList) {
-    // 1. Clear the current grid
-    domElements.apiGrid.innerHTML = "";
-
-    // 2. If no APIs match the search, show the empty state message
-    if (apiList.length === 0) {
-        domElements.apiGrid.classList.add('hidden');
-        domElements.noResultsMessage.classList.remove('hidden');
+function renderCards(repoList) {
+    if (repoList.length === 0) {
+        UI.apiGrid.classList.add('hidden');
+        UI.noResultsMessage.classList.remove('hidden');
         return;
     } 
 
-    // 3. Otherwise, hide the empty state and loop through the data
-    domElements.apiGrid.classList.remove('hidden');
-    domElements.noResultsMessage.classList.add('hidden');
+    UI.apiGrid.classList.remove('hidden');
+    UI.noResultsMessage.classList.add('hidden');
     
-    // Create an HTML string for each API and insert it into the DOM
-    let rawHTML = "";
-    apiList.forEach(api => {
+    // Milestone 3: Array HOF (map) to generate HTML string dynamically avoiding raw loop appends.
+    const htmlString = repoList.map(repo => {
+        // Find if this specific ID exists in the favorites array
+        const isFav = favorites.includes(repo.id);
         
-        // Determine what color badge to show for Authentication
-        let authBadgeClass = api.authType.toLowerCase() === 'none' ? 'badge-auth-no' : 'badge-auth-yes';
-        
-        rawHTML += `
+        return `
             <article class="card">
                 <div class="card-header">
-                    <span class="badge badge-category">${api.category}</span>
-                    <span class="badge ${authBadgeClass}">${api.authType || 'Unknown'}</span>
+                    <span class="badge">${repo.language}</span>
+                    <span class="badge badge-stars">⭐ ${repo.stars.toLocaleString()}</span>
                 </div>
-                <h3 class="card-title">${api.name}</h3>
-                <p class="card-description">${api.description}</p>
+                <h3 class="card-title">${repo.name}</h3>
+                <p class="card-description">${repo.description}</p>
                 <div class="card-footer">
-                    <a href="${api.url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                        View API
-                    </a>
+                    <a href="${repo.url}" target="_blank" class="btn btn-primary">View Repo</a>
+                    <!-- Button Interactions (Milestone 3) -->
+                    <button class="btn btn-favorite ${isFav ? 'active' : ''}" onclick="toggleFavorite('${repo.id}')">
+                        ${isFav ? '❤️ Saved' : '🤍 Save'}
+                    </button>
                 </div>
             </article>
         `;
-    });
+    }).join(""); // Join array elements into single HTML string
 
-    // Inject the raw HTML into the grid container
-    domElements.apiGrid.innerHTML = rawHTML;
+    UI.apiGrid.innerHTML = htmlString;
 }
 
 /**
- * Dynamically extract unique categories from our dataset to populate the dropdown.
+ * Reads languages directly from data, removing duplicates to form filter options.
  */
-function populateCategoryDropdown() {
-    // Extract just the categories
-    const allCategories = allAPIs.map(api => api.category);
-    
-    // Use a Set to remove duplicates, then convert back to a sorted Array
-    const uniqueCategories = [...new Set(allCategories)].sort();
+function populateLanguageDropdown() {
+    // Array HOFs: map() and filter()
+    const allLanguages = allRepos.map(repo => repo.language);
+    // Remove duplicates using Set, filter out Unknowns, and sort alphabetically
+    const uniqueLanguages = [...new Set(allLanguages)].filter(lang => lang !== "Unknown").sort();
 
-    // Generate <option> tags and append to the dropdown
-    uniqueCategories.forEach(category => {
+    uniqueLanguages.forEach(lang => {
         const option = document.createElement("option");
-        option.value = category;
-        option.textContent = category;
-        domElements.categorySelect.appendChild(option);
+        option.value = lang;
+        option.textContent = lang;
+        UI.languageSelect.appendChild(option);
     });
 }
 
 // =========================================================================
-// 6. SEARCH & FILTER PIPELINE
+// 5. SEARCH, FILTER & SORT PIPELINE (Milestone 3)
 // =========================================================================
 /**
- * This function handles both text search AND category filtering simultaneously.
- * It creates a filtered copy of the data without mutating the original `allAPIs`.
+ * A combined HOF pipeline that filters then sorts the data strictly 
+ * avoiding any traditional while/for loops.
  */
 function handleFilterChange() {
-    // 1. Get the current values from the inputs
-    const searchQuery = domElements.searchBox.value.toLowerCase().trim();
-    const selectedCategory = domElements.categorySelect.value;
-    
-    // 2. Start a pipeline over the original data
-    const filteredAPIs = allAPIs.filter(api => {
+    const searchQuery = UI.searchBox.value.toLowerCase().trim();
+    const selectedLang = UI.languageSelect.value;
+    const sortOption = UI.sortSelect.value;
+
+    UI.loadingIndicator.classList.remove('hidden');
+
+    // -- Milestone 3: Filtering via Array.filter() --
+    let filteredData = allRepos.filter(repo => {
+        const matchesLang = (selectedLang === "All" || repo.language === selectedLang);
         
-        // Step A: Category Check
-        // If the dropdown says "All", it passes. Otherwise, it must match exactly.
-        const matchesCategory = selectedCategory === "All" || api.category === selectedCategory;
-
-        // Step B: Text Search Check
-        // Search against both the API name and description
-        const nameMatch = api.name.toLowerCase().includes(searchQuery);
-        const descMatch = api.description.toLowerCase().includes(searchQuery);
+        const nameMatch = repo.name.toLowerCase().includes(searchQuery);
+        const descMatch = repo.description.toLowerCase().includes(searchQuery);
         const matchesSearch = nameMatch || descMatch;
-
-        // Step C: Combine requirements
-        // An API card only shows if it passes both the category AND text check
-        return matchesCategory && matchesSearch;
+        
+        return matchesLang && matchesSearch;
     });
 
-    // 3. Send the newly filtered array to the Rendering Engine
-    renderCards(filteredAPIs);
+    // -- Milestone 3: Sorting via Array.sort() --
+    filteredData = filteredData.sort((a, b) => {
+        if (sortOption === 'stars-desc') return b.stars - a.stars;
+        if (sortOption === 'stars-asc') return a.stars - b.stars;
+        if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
+        if (sortOption === 'name-desc') return b.name.localeCompare(a.name);
+        return 0;
+    });
+
+    // Render the newly processed array
+    renderCards(filteredData);
+    UI.loadingIndicator.classList.add('hidden');
+}
+
+// =========================================================================
+// 6. BONUS FEATURES & INTERACTIONS
+// =========================================================================
+
+/**
+ * DEBOUNCING (Bonus Feature)
+ * Wraps a function limiting its execution until delay ms pass with no triggers.
+ */
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+/**
+ * LOCAL STORAGE: FAVORITES (Bonus & Button Interaction)
+ * Mutates the favorites array, saves it to browser Local Storage, and updates UI.
+ */
+function toggleFavorite(repoId) {
+    const isFav = favorites.includes(repoId);
+    if (isFav) {
+        // Remove from Array
+        favorites = favorites.filter(id => id !== repoId);
+    } else {
+        // Add to Array
+        favorites.push(repoId);
+    }
+    
+    // Save stringified array securely
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    
+    // Re-render UI
+    handleFilterChange();
+}
+
+/**
+ * DARK MODE THEME (Milestone 3 & Local Storage)
+ * Checks for past preference, toggles class on body, resaves intent.
+ */
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light-mode';
+    document.body.className = savedTheme;
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-mode');
+    const newTheme = isLight ? 'dark-mode' : 'light-mode';
+    
+    document.body.className = newTheme;
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    UI.themeIcon.textContent = theme === 'dark-mode' ? '☀️' : '🌙';
+    // Access the text node avoiding wiping out the span innerHTML
+    UI.themeToggle.childNodes[2].textContent = theme === 'dark-mode' ? ' Light Mode' : ' Dark Mode';
 }

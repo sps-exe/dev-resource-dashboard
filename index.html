@@ -3,53 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Resource Intelligence Dashboard</title>
+    <title>Trending Public APIs</title>
+    <!-- We use local style.css per requirements -->
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="light-mode">
     <header>
         <div class="header-container">
-            <h1>Developer Resource Dashboard</h1>
-            <p>Discover, explore, and manage useful public APIs and developer tools.</p>
+            <div class="header-content">
+                <div>
+                    <h1>Trending Public APIs</h1>
+                    <p>Discover real-time trending API repositories from GitHub.</p>
+                </div>
+                <!-- Dark Mode Toggle (Milestone 3) -->
+                <button id="themeToggle" class="btn btn-secondary">
+                    <span id="themeIcon">🌙</span> Dark Mode
+                </button>
+            </div>
         </div>
     </header>
 
     <main>
-        <!-- Control Panel: Search and Filter -->
+        <!-- Control Panel: Search, Filter, Sort (Milestone 3) -->
         <section class="controls">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search APIs by name or description...">
+                <!-- Search feature with Debouncing -->
+                <input type="text" id="searchInput" placeholder="Search by name or description (Debounced)..." aria-label="Search APIs">
+                <span id="loadingIndicator" class="loading-indicator hidden">⏳</span>
             </div>
+            
             <div class="filter-box">
-                <select id="categoryFilter">
-                    <option value="All">All Categories</option>
-                    <!-- Categories will be dynamically injected here by JS -->
+                <!-- Filtering feature -->
+                <select id="languageFilter" aria-label="Filter by Language">
+                    <option value="All">All Languages</option>
+                    <!-- Languages will be dynamically injected here by JS -->
+                </select>
+
+                <!-- Sorting Dropdown -->
+                <select id="sortSelect" aria-label="Sort Repositories">
+                    <option value="stars-desc">Sort by: Stars (High-Low)</option>
+                    <option value="stars-asc">Sort by: Stars (Low-High)</option>
+                    <option value="name-asc">Sort by: Name (A-Z)</option>
+                    <option value="name-desc">Sort by: Name (Z-A)</option>
                 </select>
             </div>
         </section>
 
-        <!-- Dynamic Grid for APIs -->
+        <!-- Dynamic Grid Container -->
         <section class="api-grid-container">
             <div id="api-grid" class="api-grid">
-                <!-- API Cards will be dynamically injected here by JS -->
+                <!-- Javascript injects cards here -->
+                <div class="loading-state">Fetching real-time data from GitHub API...</div>
             </div>
             
             <!-- Empty State Message -->
             <div id="no-results" class="no-results hidden">
-                <h2>No APIs found</h2>
-                <p>Try adjusting your search or category filter.</p>
+                <h2>No repositories found.</h2>
+                <p>Try adjusting your search query, filters, or checking your connection.</p>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
-  <footer class="main-footer">
-    <div class="footer-content">
-      <p>&copy; 2026 Developer Resource Intelligence Dashboard.</p>
-      <p>Built from scratch using native HTML5, CSS3, and JavaScript.</p>
-    </div>
-  </footer>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Developer Resource Intelligence Dashboard.</p>
+            <p>Milestone 2 & 3 Completed: Live GitHub API, Sorting, Dark Mode, Favorites & Debouncing.</p>
+        </div>
+    </footer>
 
+    <!-- Core Logic -->
     <script src="app.js"></script>
 </body>
 </html>
