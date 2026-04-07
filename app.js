@@ -740,6 +740,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") closeModal();
     });
 
+    /* ––– Clear filters button (All tab) ––– */
+    document.getElementById("clearFiltersBtn").addEventListener("click", clearAllFilters);
+
+    /* ––– Clear all favorites button ––– */
+    document.getElementById("clearFavsBtn").addEventListener("click", clearAllFavorites);
+
+    /* ––– Explore trending button (empty favorites state) ––– */
+    document.getElementById("exploreBtn").addEventListener("click", () => switchTab("trending"));
+
     /* ––– Back to top button ––– */
     const fabBtn = document.getElementById("backToTop");
     window.addEventListener("scroll", () => {
@@ -816,6 +825,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     showToast("Failed to copy", "error");
                 });
             }
+            return;  // ← prevent card click from also opening modal
         }
     });
 });

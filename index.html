@@ -8,7 +8,7 @@
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Content-Security-Policy"
           content="default-src 'self';
-                   script-src 'self';
+                   script-src 'self' 'unsafe-hashes';
                    style-src 'self' https://fonts.googleapis.com;
                    font-src 'self' https://fonts.gstatic.com;
                    img-src 'self' data: https:;
@@ -207,7 +207,7 @@
             <div id="allNoResults" class="empty-state hidden">
                 <div class="empty-icon">⌕</div>
                 <p>No results match your filters.</p>
-                <button onclick="clearAllFilters()" class="btn-outline">Clear Filters</button>
+                <button id="clearFiltersBtn" class="btn-outline">Clear Filters</button>
             </div>
         </section>
     </div>
@@ -220,7 +220,7 @@
                     <h2 class="section-title">♥ Your Favorites</h2>
                     <p class="section-sub">Repositories you've saved for later reference</p>
                 </div>
-                <button class="btn-outline danger" id="clearFavsBtn" onclick="clearAllFavorites()">Clear All</button>
+                <button class="btn-outline danger" id="clearFavsBtn">Clear All</button>
             </div>
 
             <div id="favGrid" class="repo-grid">
@@ -231,7 +231,7 @@
                 <div class="empty-icon">♡</div>
                 <h3>No favorites yet</h3>
                 <p>Click the ♥ on any card to save a repo here</p>
-                <button onclick="switchTab('trending')" class="btn-outline">Explore Trending</button>
+                <button id="exploreBtn" class="btn-outline">Explore Trending</button>
             </div>
         </section>
     </div>
